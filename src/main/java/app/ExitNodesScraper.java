@@ -8,9 +8,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.List;
-import java.util.regex.MatchResult;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+
+import static app.PageParser.parseExitNodesPage;
 
 public class ExitNodesScraper {
 
@@ -27,7 +26,7 @@ public class ExitNodesScraper {
                 getPageRequest(),
                 HttpResponse.BodyHandlers.ofString()
         );
-        return parseExitNodesPage(exitNodesPage);
+        return parseExitNodesPage(exitNodesPage.body());
     }
 
     private static HttpRequest getPageRequest() {
@@ -35,14 +34,6 @@ public class ExitNodesScraper {
                 .uri(URI.create("https://check.torproject.org/exit-addresses"))
                 .timeout(Duration.ofMinutes(1))
                 .build();
-    }
-
-    private List<String> parseExitNodesPage(HttpResponse<String> exitNodesPage) {
-        return Pattern.compile("\\d*\\.\\d*\\.\\d*\\.\\d*")
-                .matcher(exitNodesPage.body())
-                .results()
-                .map(MatchResult::group)
-                .collect(Collectors.toList());
     }
 
 }
